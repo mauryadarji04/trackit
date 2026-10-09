@@ -1,0 +1,46 @@
+@model IReadOnlyList<UserSummary>
+@{ ViewData["Title"] = "Users"; }
+
+<h1 class="h4 mb-3">Users</h1>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead class="table-light"><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var u in Model)
+            {
+                <tr>
+                    <td>@u.FullName</td>
+                    <td>@u.Email</td>
+                    <td>
+                        <form asp-action="SetRole" method="post" class="d-flex gap-2">
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <select name="role" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+                                @foreach (var r in Roles.All)
+                                {
+                                    <option value="@r" selected="@(u.Role == r)">@r</option>
+                                }
+                            </select>
+                            <noscript><button class="btn btn-sm btn-outline-primary" type="submit">Save</button></noscript>
+                        </form>
+                    </td>
+                    <td>
+                        @if (u.IsActive) { <span class="badge text-bg-success">Active</span> }
+                        else { <span class="badge text-bg-secondary">Deactivated</span> }
+                    </td>
+                    <td class="text-end">
+                        <form asp-action="SetActive" method="post">
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <input type="hidden" name="isActive" value="@((!u.IsActive).ToString().ToLowerInvariant())" />
+                            <button class="btn btn-sm @(u.IsActive ? "btn-outline-danger" : "btn-outline-success")" type="submit">
+                                @(u.IsActive ? "Deactivate" : "Activate")
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

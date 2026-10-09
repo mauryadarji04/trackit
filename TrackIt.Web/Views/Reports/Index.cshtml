@@ -1,0 +1,18 @@
+@model ReportViewModel
+@{ ViewData["Title"] = "Reports"; }
+
+<h1 class="h4 mb-3">Reports</h1>
+
+<div class="card" style="max-width: 32rem;">
+    <div class="card-body">
+        <h2 class="h6">Weekly defect summary (PDF)</h2>
+        <p class="small text-muted">Tickets opened, resolved and closed in the 7 days from the date you choose, with breakdowns by priority, project and developer.</p>
+        <form asp-action="Weekly" method="post" class="d-flex gap-2 align-items-end">
+            <div>
+                <label asp-for="WeekStart" class="form-label small"></label>
+                <input asp-for="WeekStart" type="date" value="@Model.WeekStart.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <button class="btn btn-primary" type="submit">Download PDF</button>
+        </form>
+    </div>
+</div>

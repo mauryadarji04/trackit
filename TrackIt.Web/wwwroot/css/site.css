@@ -1,0 +1,66 @@
+:root {
+    --trackit-ink: #1f2937;
+    --trackit-bg: #f5f7fa;
+    --trackit-accent: #2563eb;
+}
+
+body {
+    background: var(--trackit-bg);
+    color: var(--trackit-ink);
+}
+
+.trackit-nav {
+    background: #111827;
+}
+
+.card {
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.stat-tile .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.stat-tile .stat-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.table > :not(caption) > * > * {
+    vertical-align: middle;
+}
+
+.ticket-description {
+    white-space: pre-wrap;
+}
+
+.comment-thread {
+    border-left: 2px solid #e5e7eb;
+    margin-left: 0.75rem;
+    padding-left: 1rem;
+}
+
+.comment-body {
+    white-space: pre-wrap;
+}
+
+.sla-breach {
+    color: #b91c1c;
+    font-weight: 600;
+}
+
+details > summary {
+    cursor: pointer;
+    color: var(--trackit-accent);
+    font-size: 0.85rem;
+}
+
+.chart-box {
+    position: relative;
+    height: 260px;
+}

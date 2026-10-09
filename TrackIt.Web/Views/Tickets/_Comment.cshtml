@@ -1,0 +1,28 @@
+@model CommentDto
+
+<div class="mb-3">
+    <div class="small">
+        <strong>@Model.UserName</strong>
+        <span class="text-muted">&middot; @UiHelpers.Stamp(Model.CreatedAt)</span>
+    </div>
+    <div class="comment-body">@Model.CommentText</div>
+
+    <details class="mt-1">
+        <summary>Reply</summary>
+        <form asp-action="AddComment" asp-route-id="@Model.TicketId" method="post" class="mt-2">
+            <input type="hidden" name="parentId" value="@Model.CommentId" />
+            <textarea name="text" class="form-control form-control-sm mb-2" rows="2" maxlength="2000" required></textarea>
+            <button class="btn btn-sm btn-outline-primary" type="submit">Post reply</button>
+        </form>
+    </details>
+
+    @if (Model.Replies.Count > 0)
+    {
+        <div class="comment-thread mt-2">
+            @foreach (var reply in Model.Replies)
+            {
+                <partial name="_Comment" model="reply" />
+            }
+        </div>
+    }
+</div>

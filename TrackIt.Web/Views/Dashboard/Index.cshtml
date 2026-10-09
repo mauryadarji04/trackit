@@ -1,0 +1,114 @@
+@model DashboardData
+@{
+    ViewData["Title"] = "Dashboard";
+    var s = Model.Summary;
+    string ToJson(IEnumerable<LabelCount> rows, Func<LabelCount, object> pick) =>
+        System.Text.Json.JsonSerializer.Serialize(rows.Select(pick));
+}
+
+<h1 class="h4 mb-3">Dashboard</h1>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-tile"><div class="card-body">
+            <div class="stat-value">@s.OpenCount</div><div class="stat-label">Not closed</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-tile"><div class="card-body">
+            <div class="stat-value">@s.ClosedCount</div><div class="stat-label">Closed</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-tile"><div class="card-body">
+            <div class="stat-value @(s.SlaBreaches > 0 ? "sla-breach" : "")">@s.SlaBreaches</div><div class="stat-label">SLA breaches</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-tile"><div class="card-body">
+            <div class="stat-value">@(s.OpenCount + s.ClosedCount)</div><div class="stat-label">Total tickets</div>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card"><div class="card-body">
+            <h2 class="h6">By status</h2>
+            <div class="chart-box"><canvas id="statusChart"></canvas></div>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card"><div class="card-body">
+            <h2 class="h6">By priority</h2>
+            <div class="chart-box"><canvas id="priorityChart"></canvas></div>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card"><div class="card-body">
+            <h2 class="h6">Open ticket aging</h2>
+            <div class="chart-box"><canvas id="agingChart"></canvas></div>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white fw-semibold">Average resolution time per developer</div>
+            <table class="table table-sm mb-0">
+                <thead class="table-light"><tr><th>Developer</th><th class="text-end">Resolved</th><th class="text-end">Avg hours</th></tr></thead>
+                <tbody>
+                @foreach (var d in Model.DeveloperStats)
+                {
+                    <tr><td>@d.DeveloperName</td><td class="text-end">@d.ResolvedCount</td><td class="text-end">@d.AvgResolutionHours.ToString("0.0")</td></tr>
+                }
+                @if (!Model.DeveloperStats.Any())
+                {
+                    <tr><td colspan="3" class="text-muted text-center py-3">No resolved tickets yet.</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white fw-semibold">Closed this month (rank)</div>
+            <table class="table table-sm mb-0">
+                <thead class="table-light"><tr><th>Rank</th><th>Developer</th><th class="text-end">Closed</th></tr></thead>
+                <tbody>
+                @foreach (var r in Model.Leaderboard)
+                {
+                    <tr><td>@r.Rnk</td><td>@r.DeveloperName</td><td class="text-end">@r.ClosedCount</td></tr>
+                }
+                @if (!Model.Leaderboard.Any())
+                {
+                    <tr><td colspan="3" class="text-muted text-center py-3">Nothing closed this month yet.</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script>
+        const palette = ['#2563eb', '#d97706', '#059669', '#6b7280', '#dc2626'];
+        function draw(id, type, labels, values) {
+            new Chart(document.getElementById(id), {
+                type: type,
+                data: { labels: labels, datasets: [{ data: values, backgroundColor: palette, borderWidth: 0 }] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: type === 'doughnut', position: 'bottom' } },
+                    scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { precision: 0 } } } : {}
+                }
+            });
+        }
+        draw('statusChart', 'doughnut', @Html.Raw(ToJson(s.ByStatus, r => r.Label)), @Html.Raw(ToJson(s.ByStatus, r => r.Total)));
+        draw('priorityChart', 'bar', @Html.Raw(ToJson(s.ByPriority, r => r.Label)), @Html.Raw(ToJson(s.ByPriority, r => r.Total)));
+        draw('agingChart', 'bar', @Html.Raw(ToJson(s.Aging, r => r.Label)), @Html.Raw(ToJson(s.Aging, r => r.Total)));
+    </script>
+}
